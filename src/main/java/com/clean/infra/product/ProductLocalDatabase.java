@@ -32,5 +32,11 @@ public class ProductLocalDatabase {
 
     }
 
+    public void save(Product product) {
+        Long id = idGenerator.getAndIncrement();
+        product.setProductId(id);
+        localDb.put(id, product);
+    }
+
 
 }
