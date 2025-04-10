@@ -1,4 +1,4 @@
-package com.clean;
+package com.clean.integration;
 
 import com.clean.application.BalanceFrontService;
 import com.clean.application.OrderFrontService;
@@ -28,7 +28,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import java.util.List;
-import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -52,12 +51,16 @@ public class IntegrationTest {
 
     @Autowired
     private OrderService orderService;
+
     @Autowired
     private ProductService productService;
+
     @Autowired
     private PaymentFrontService paymentFrontService;
+
     @Autowired
     private OrderLocalDatabase orderLocalDatabase;
+
     @Autowired
     private PaymentHistoryLocalDatabase paymentHistoryLocalDatabase;
 
