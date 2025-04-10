@@ -2,6 +2,7 @@ package com.clean.domain.balance;
 
 import com.clean.interfaces.model.dto.req.ReqChargeBalanceDto;
 import com.clean.interfaces.model.dto.req.ReqRecordBalanceHistoryDto;
+import com.clean.interfaces.model.dto.req.ReqUseBalanceDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -31,5 +32,22 @@ public class BalanceService {
                 DTO.getUserId(),DTO.getAmount()
         ));
     }
+
+    public Balance usableBalance(ReqUseBalanceDto DTO) {
+        Long userId = DTO.getUserId();
+        Long amount = DTO.getAmount();
+
+        Balance balance = balanceRepository.findByUserId(userId).orElseThrow(
+                () -> new RuntimeException(userId.toString() + " : 해당 유저가 존재하지 않습니다")
+        );
+
+        if(balance.getAmount() < amount) {
+            throw new RuntimeException("잔액이 부족합니다.");
+        }
+
+        balance.setAmount(balance.getAmount() - amount);
+        return balanceRepository.updateBalance(balance);
+    }
+
 
 }
