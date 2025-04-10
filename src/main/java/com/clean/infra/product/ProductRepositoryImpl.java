@@ -18,4 +18,8 @@ public class ProductRepositoryImpl implements ProductRepository {
         return productLocalDatabase.findByProductId(stockId);
     }
 
+    @Override
+    public Product updateProduct(Product product) {
+        return productLocalDatabase.updateProduct(product);
+    }
 }

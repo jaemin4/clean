@@ -6,5 +6,6 @@ public interface ProductRepository {
 
     Optional<Product> findByProductId(Long stockId);
 
+    Product updateProduct(Product product);
 
 }

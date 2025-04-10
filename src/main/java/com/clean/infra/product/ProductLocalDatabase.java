@@ -21,5 +21,16 @@ public class ProductLocalDatabase {
                 .findFirst();
     }
 
+    public Product updateProduct(Product product) {
+        Product existing = localDb.get(product.getProductId());
+        if (existing == null) {
+            throw new RuntimeException("Product with ID " + product.getProductId() + " not found in localDb.");
+        } else{
+            existing.setProductQuantity(product.getProductQuantity());
+            return existing;
+        }
+
+    }
+
 
 }
