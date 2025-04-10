@@ -11,6 +11,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import java.time.LocalDateTime;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -101,6 +105,38 @@ public class CouponTest {
         assertThrows(RuntimeException.class, () -> {
             couponService.issueCoupon(new IssueCouponParam(user2, couponId));
         }, "쿠폰 수량이 부족하면 예외가 발생해야 함");
+    }
+
+    @Test
+    @DisplayName("선착순 쿠폰발급 통합테스트(동시성 제어)")
+    void testConcurrentCouponIssueWithOrder() throws InterruptedException {
+        int threadCount = 10;
+        ExecutorService executor = Executors.newFixedThreadPool(threadCount);
+        CountDownLatch latch = new CountDownLatch(threadCount);
+
+        Long couponId = 1L;
+
+        for (int i = 0; i < threadCount; i++) {
+            final long userId = i;
+            executor.execute(() -> {
+                try {
+                    IssueCouponParam param = new IssueCouponParam(userId, couponId);
+                    couponService.issueCoupon(param);
+                } catch (Exception ignored) {
+                } finally {
+                    latch.countDown();
+                }
+            });
+        }
+
+        latch.await();
+        executor.shutdown();
+
+        long totalIssued = userCouponDatabase.count();
+        assertThat(totalIssued).isEqualTo(3);
+
+        System.out.println("발급 순서:");
+        userCouponDatabase.getAllIssuedUserIdsInOrder().forEach(System.out::println);
     }
 
 }
