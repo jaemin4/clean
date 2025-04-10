@@ -1,4 +1,4 @@
-package com.clean;
+package com.clean.example;
 
 import com.clean.domain.balance.Balance;
 import com.clean.domain.balance.BalanceService;

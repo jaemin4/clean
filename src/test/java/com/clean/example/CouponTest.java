@@ -1,4 +1,4 @@
-package com.clean;
+package com.clean.example;
 
 import com.clean.domain.coupon.Coupon;
 import com.clean.domain.coupon.CouponService;
