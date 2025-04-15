@@ -1,0 +1,26 @@
+package com.clean.infra.balance;
+
+import com.clean.domain.balance.Balance;
+import com.clean.domain.balance.BalanceRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Repository;
+import java.util.Optional;
+
+@Repository
+@RequiredArgsConstructor
+@Slf4j
+public class BalanceRepositoryImpl implements BalanceRepository {
+
+    private final BalanceLocalDatabase balanceLocalDatabase;
+
+    @Override
+    public Balance updateBalance(Balance balance) {
+        return balanceLocalDatabase.updateBalance(balance);
+    }
+
+    @Override
+    public Optional<Balance> findByUserId(Long userId) {
+        return balanceLocalDatabase.findByUserId(userId);
+    }
+}
