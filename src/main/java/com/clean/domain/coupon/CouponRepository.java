@@ -1,7 +1,12 @@
 package com.clean.domain.coupon;
 
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
+
+import java.util.Optional;
+
+@Component
 public interface CouponRepository {
     Coupon save(Coupon coupon);
-    Coupon update(Coupon coupon);
-    Coupon findByCouponId(long id);
+    Optional<Coupon> findById(long couponId);
 }

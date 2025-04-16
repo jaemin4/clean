@@ -1,6 +1,5 @@
 package com.clean.domain.payment;
 
-import com.clean.interfaces.model.dto.req.ReqPaymentHistoryDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -10,14 +9,12 @@ public class PaymentHistoryService {
 
     private final PaymentHistoryRepository paymentHistoryRepository;
 
-    public void recordPaymentHistory(ReqPaymentHistoryDto DTO) {
-        paymentHistoryRepository.save(new PaymentHistory(
-                DTO.getUserId(),
-                DTO.getAmount(),
-                DTO.getOrderId(),
-                DTO.getTransactionId(),
-                DTO.getStatus()
-        ));
+    public void recordPaymentHistory(PaymentHistoryCommand.Save command) {
+        PaymentHistory paymentHistory = PaymentHistory.create(
+                command.getUserId(),command.getAmount(),
+                command.getOrderId(),command.getTransactionId(), command.getStatus());
+
+        paymentHistoryRepository.save(paymentHistory);
     }
 
 

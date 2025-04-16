@@ -1,21 +1,40 @@
 package com.clean.domain.coupon;
 
-import lombok.AllArgsConstructor;
+import com.clean.domain.order.AuditableEntity;
+import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-import java.time.LocalDateTime;
 
 @Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-public class Coupon {
-    private Long couponId;
+@Entity
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "t_coupon")
+public class Coupon extends AuditableEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "coupon_id")
+    private Long id;
+
+    @Column(nullable = false)
+    private Long userId;
+
+    @Column(nullable = false)
     private String title;
-    private String discountType; // "fixed"
-    private Integer discountValue;// "10%"
-    private Integer couponQuantity;
-    private LocalDateTime startDateTime;
-    private LocalDateTime endDateTime;
+
+    @Column(nullable = false)
+    private int discountRate; // 예: 10 = 10%
+
+    @Column(nullable = false)
+    private Long quantity;
+
+    // 수량 감소 메서드
+    public void use() {
+        if (quantity <= 0) {
+            throw new IllegalStateException("쿠폰 수량이 부족합니다.");
+        }
+        this.quantity--;
+    }
+
 }

@@ -3,26 +3,24 @@ package com.clean.infra.coupon;
 import com.clean.domain.coupon.Coupon;
 import com.clean.domain.coupon.CouponRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
-@Repository
+import java.util.Optional;
+
+@Component
 @RequiredArgsConstructor
 public class CouponRepositoryImpl implements CouponRepository {
 
-    private final CouponLocalDatabase couponLocalDatabase;
+    private final CouponJpaRepository couponJpaRepository;
 
     @Override
     public Coupon save(Coupon coupon) {
-        return couponLocalDatabase.save(coupon);
+        return couponJpaRepository.save(coupon);
     }
 
     @Override
-    public Coupon update(Coupon coupon) {
-        return couponLocalDatabase.update(coupon);
-    }
-
-    @Override
-    public Coupon findByCouponId(long couponId) {
-        return couponLocalDatabase.findByCouponId(couponId);
+    public Optional<Coupon> findById(long id) {
+        return couponJpaRepository.findById(id);
     }
 }

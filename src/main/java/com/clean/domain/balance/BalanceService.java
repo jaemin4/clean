@@ -1,8 +1,5 @@
 package com.clean.domain.balance;
 
-import com.clean.interfaces.model.dto.req.ReqChargeBalanceDto;
-import com.clean.interfaces.model.dto.req.ReqRecordBalanceHistoryDto;
-import com.clean.interfaces.model.dto.req.ReqUseBalanceDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -15,38 +12,32 @@ public class BalanceService {
     private final BalanceRepository balanceRepository;
     private final BalanceHistoryRepository balanceHistoryRepository;
 
-    public Balance chargeableBalance(ReqChargeBalanceDto DTO) {
-        Long userId = DTO.getUserId();
-        Long amount = DTO.getAmount();
+    public void charge(BalanceCommand.Charge command) {
+        Balance balance = balanceRepository.findByUserId(command.getUserId())
+                .map(b -> {
+                    b.charge(command.getAmount());
+                    return b;
+                })
+                .orElseGet(() -> {
+                    Balance newBalance = Balance.create(command.getUserId(), command.getAmount());
+                    return balanceRepository.save(newBalance);
+                });
 
-        Balance balance = balanceRepository.findByUserId(userId).orElseThrow(
-                () -> new RuntimeException(userId.toString() + " : 해당 유저가 존재하지 않습니다")
+        balanceHistoryRepository.save(
+                BalanceHistory.charge(balance.getBalanceId(), command.getAmount())
         );
-
-        balance.setAmount(balance.getAmount() + amount);
-        return balanceRepository.updateBalance(balance);
     }
 
-    public void recordBalanceHistory(ReqRecordBalanceHistoryDto DTO) {
-        balanceHistoryRepository.save(new BalanceHistory(
-                DTO.getUserId(),DTO.getAmount()
-        ));
-    }
 
-    public Balance usableBalance(ReqUseBalanceDto DTO) {
-        Long userId = DTO.getUserId();
-        Long amount = DTO.getAmount();
+    public void use(BalanceCommand.Use command) {
+        Balance balance = balanceRepository.findByUserId(command.getUserId())
+                .orElseThrow(() -> new IllegalArgumentException("해당 유저의 잔액 정보가 없습니다."));
 
-        Balance balance = balanceRepository.findByUserId(userId).orElseThrow(
-                () -> new RuntimeException(userId.toString() + " : 해당 유저가 존재하지 않습니다")
+        balance.use(command.getAmount());
+
+        balanceHistoryRepository.save(
+                BalanceHistory.use(balance.getBalanceId(), command.getAmount())
         );
-
-        if(balance.getAmount() < amount) {
-            throw new RuntimeException("잔액이 부족합니다.");
-        }
-
-        balance.setAmount(balance.getAmount() - amount);
-        return balanceRepository.updateBalance(balance);
     }
 
 

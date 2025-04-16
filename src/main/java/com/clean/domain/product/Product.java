@@ -1,25 +1,53 @@
 package com.clean.domain.product;
 
-import lombok.AllArgsConstructor;
+import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@Entity
+@Table(name = "t_product")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Product {
 
-    private Long productId;
-    private String productName;
-    private Long productPrice;
-    private Long productQuantity;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "product_id")
+    private Long id;
 
-    public Product(String productName, Long productPrice, Long productQuantity) {
-        this.productName = productName;
-        this.productPrice = productPrice;
-        this.productQuantity = productQuantity;
+    @Column(nullable = false)
+    private String name;
+
+    @Column(nullable = false)
+    private long price;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ProductSellingStatus sellStatus;
+
+    private Product(String name, long price, ProductSellingStatus sellStatus) {
+        validate(name, price, sellStatus);
+        this.name = name;
+        this.price = price;
+        this.sellStatus = sellStatus;
     }
 
+    public static Product create(String name, long price, ProductSellingStatus sellStatus) {
+        return new Product(name, price, sellStatus);
+    }
+
+    private static void validate(String name, long price, ProductSellingStatus sellStatus) {
+        if (name == null || name.isBlank()) {
+            throw new IllegalArgumentException("상품 이름은 필수입니다.");
+        }
+
+        if (price <= 0) {
+            throw new IllegalArgumentException("상품 가격은 0보다 커야 합니다.");
+        }
+
+        if (sellStatus == null) {
+            throw new IllegalArgumentException("상품 판매 상태는 필수입니다.");
+        }
+    }
 }

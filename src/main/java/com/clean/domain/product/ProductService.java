@@ -1,57 +1,48 @@
 package com.clean.domain.product;
 
-import com.clean.interfaces.model.dto.req.ReqCalculateTotalAmountDto;
-import com.clean.interfaces.model.dto.req.ReqDecreaseStockDto;
-import com.clean.interfaces.model.dto.req.ReqValidateNoDuplicateItemsDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
 public class ProductService {
 
     private final ProductRepository productRepository;
+    /**
+     * 전달받은 ID 목록 중, 현재 판매 중인 상품만 필터링하여 반환
+     */
+    public ProductInfo.Products findSellingProductsByIds(ProductCommand.Products command) {
+        List<Product> products = productRepository.findAllByIdIn(command.getProductIds());
 
-    public Product findByProductId(Long productId) {
-        return productRepository.findByProductId(productId).orElseThrow(
-                () -> new RuntimeException("Product not found : "+ productId)
-        );
-    }
-
-    public void validateNoDuplicateProducts(List<ReqValidateNoDuplicateItemsDto> DTO) {
-        Set<Long> productIds = new HashSet<>();
-
-        for (ReqValidateNoDuplicateItemsDto product : DTO) {
-            if (!productIds.add(product.getProductId())) {
-                throw new RuntimeException("중복된 상품 ID가 포함되어 있습니다: " + product.getProductId());
-            }
-        }
-    }
-
-    public long calculateTotalAmount(List<ReqCalculateTotalAmountDto> items) {
-        return items.stream()
-                .mapToLong(item -> {
-                    Product product = productRepository.findByProductId(item.getProductId()).orElseThrow(
-                            ()->new RuntimeException("Product not found : "+ item.getProductId()));
-                    return product.getProductPrice() * item.getQuantity();
-                })
-                .sum();
-    }
-
-    public Product decreaseAbleStock(ReqDecreaseStockDto DTO) {
-        Product product = productRepository.findByProductId(DTO.getProductId()).orElseThrow(
-                () -> new RuntimeException("Product not found : "+ DTO.getProductId())
-        );
-
-        if(product.getProductQuantity() < DTO.getQuantity()){
-            throw new RuntimeException("재고가 부족합니다.");
+        // 1. 조회된 상품이 없거나 개수가 일치하지 않으면 → 예외
+        if (products.isEmpty() || products.size() != command.getProductIds().size()) {
+            throw new RuntimeException("요청한 상품 중 존재하지 않는 상품이 포함되어 있습니다.");
         }
 
-        product.setProductQuantity(product.getProductQuantity() - DTO.getQuantity());
-        return productRepository.updateProduct(product);
+        // 2. 판매 중인 상품만 필터링
+        List<ProductInfo.Product> sellingProducts = products.stream()
+                .filter(product -> product.getSellStatus() == ProductSellingStatus.SELLING)
+                .map(product -> ProductInfo.Product.of(
+                        product.getId(),
+                        product.getName(),
+                        product.getPrice()
+                ))
+                .toList();
+
+        // 3. 판매중 아닌 상품이 포함되어 있다면 → 예외
+        if (sellingProducts.size() != products.size()) {
+            throw new RuntimeException("요청한 상품 중 판매 중이지 않은 상품이 있습니다.");
+        }
+
+        return ProductInfo.Products.of(sellingProducts);
+    }
+
+    public ProductInfo.Product findById(Long id) {
+        Product product = productRepository.findById(id).orElseThrow(
+                () -> new RuntimeException("해당 상품이 존재하지 않습니다.")
+        );
+        return ProductInfo.Product.of(product.getId(), product.getName(), product.getPrice());
     }
 
 }

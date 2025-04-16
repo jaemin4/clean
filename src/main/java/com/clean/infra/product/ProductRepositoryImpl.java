@@ -3,23 +3,25 @@ package com.clean.infra.product;
 import com.clean.domain.product.Product;
 import com.clean.domain.product.ProductRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Repository;
-
+import org.springframework.stereotype.Component;
+import java.util.List;
 import java.util.Optional;
 
-@Repository
+@Component
 @RequiredArgsConstructor
 public class ProductRepositoryImpl implements ProductRepository {
 
-    private final ProductLocalDatabase productLocalDatabase;
+    private final ProductJpaRepository productJpaRepository;
 
     @Override
-    public Optional<Product> findByProductId(Long stockId) {
-        return productLocalDatabase.findByProductId(stockId);
+    public Optional<Product> findById(Long id) {
+        return productJpaRepository.findById(id);
     }
 
     @Override
-    public Product updateProduct(Product product) {
-        return productLocalDatabase.updateProduct(product);
+    public List<Product> findAllByIdIn(List<Long> productIds) {
+        return productJpaRepository.findAllByIdIn(productIds);
     }
+
+
 }
