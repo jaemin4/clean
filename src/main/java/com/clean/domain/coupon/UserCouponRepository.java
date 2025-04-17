@@ -1,7 +1,10 @@
 package com.clean.domain.coupon;
 
+import org.springframework.stereotype.Repository;
+import java.util.Optional;
+
+@Repository
 public interface UserCouponRepository {
     UserCoupon save(UserCoupon coupon);
-    UserCoupon update(UserCoupon coupon);
-    boolean existsByUserIdAndCouponId(long reqUserId, long reqCouponId);
+    Optional<UserCoupon> findById(long id);
 }

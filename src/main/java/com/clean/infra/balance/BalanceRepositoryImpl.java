@@ -4,23 +4,25 @@ import com.clean.domain.balance.Balance;
 import com.clean.domain.balance.BalanceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
+
 import java.util.Optional;
 
-@Repository
+@Component
 @RequiredArgsConstructor
 @Slf4j
 public class BalanceRepositoryImpl implements BalanceRepository {
 
-    private final BalanceLocalDatabase balanceLocalDatabase;
+    private final BalanceJpaRepository balanceJpaRepository;
 
     @Override
-    public Balance updateBalance(Balance balance) {
-        return balanceLocalDatabase.updateBalance(balance);
+    public Balance save(Balance balance) {
+        return balanceJpaRepository.save(balance);
     }
 
     @Override
     public Optional<Balance> findByUserId(Long userId) {
-        return balanceLocalDatabase.findByUserId(userId);
+        return balanceJpaRepository.findByUserId(userId);
     }
 }

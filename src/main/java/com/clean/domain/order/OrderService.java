@@ -1,37 +1,40 @@
-package com.clean.domain.order;
-
-import com.clean.interfaces.model.dto.req.ReqSaveOrderDto;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import java.time.LocalDateTime;
-import java.util.List;
-
-@Service
-@RequiredArgsConstructor
-public class OrderService {
-
-    private final OrderRepository orderRepository;
-
-    public Order createOrder(ReqSaveOrderDto DTO) {
-        Order order = new Order();
-        List<OrderItem> items = DTO.getItems().stream()
-                .map(p -> new OrderItem(p.getProductId(), p.getQuantity()))
-                .toList();
-
-            order.setUserId(DTO.getUserId());
-            order.setStatus("CREATED");
-            order.setItems(items);
-            order.setCreateAt(LocalDateTime.now());
-            order.setTotalAmount(DTO.getTotalAmount());
-
-        return orderRepository.save(order);
-    }
-
-    public Order getOrderById(Long orderId) {
-        return orderRepository.getOrderById(orderId).orElseThrow(() -> new RuntimeException("Order not found"));
-    }
-
-
-
-
-}
+//package com.clean.domain.order;
+//
+//import lombok.RequiredArgsConstructor;
+//import org.springframework.stereotype.Service;
+//
+//@Service
+//@RequiredArgsConstructor
+//public class OrderService {
+//
+//    private final OrderRepository orderRepository;
+//    /**
+//     * 주문 생성
+//     */
+//    public OrderInfo.CreateOrder createOrder(OrderCommand.CreateOrder command) {
+//
+//        OrderProduct orderProduct = OrderProduct.create(
+//                command.getUserId(),
+//                command.getCouponId(),
+//                command.getDiscountRate(),
+//                command.getItems()
+//        );
+//        orderRepository.save(orderProduct);
+//
+//        return OrderInfo.CreateOrder.of(
+//                orderProduct.getId(),
+//                orderProduct.getTotalPrice(),
+//                orderProduct.getDiscountPrice(),
+//                orderProduct.getOrderItems(),
+//                orderProduct.getOrderStatus()
+//        );
+//    }
+//
+//    /**
+//     * 주문 단건 조회
+//     */
+//    public OrderProduct getOrderById(Long orderId) {
+//        return orderRepository.findById(orderId)
+//                .orElseThrow(() -> new RuntimeException("해당 주문이 존재하지 않습니다. orderId=" + orderId));
+//    }
+//}
